@@ -9,9 +9,12 @@ trait HasSlug
     public static function bootHasSlug()
     {
         static::saving(function (Model $model) {
-            collect($model->getTranslatedLocales('name'))
+            collect(['en', 'ar'])
                 ->each(function (string $locale) use ($model) {
-                    $model->setTranslation('slug', $locale, $model->generateSlug($locale));
+                    if($locale == "ar"){
+                        $model->slug_ar = $model->generateSlug($locale);
+                    }
+                    $model->slug = $model->generateSlug($locale);
                 });
         });
     }
@@ -21,7 +24,10 @@ trait HasSlug
         $slugger = config('tags.slugger');
 
         $slugger = $slugger ?: '\Illuminate\Support\Str::slug';
-
-        return call_user_func($slugger, $this->getTranslation('name', $locale));
+        
+        if($locale == "ar"){
+            return call_user_func($slugger, $this->name_ar);
+        }
+        return call_user_func($slugger, $this->name);
     }
 }
