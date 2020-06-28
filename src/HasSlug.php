@@ -13,8 +13,9 @@ trait HasSlug
                 ->each(function (string $locale) use ($model) {
                     if($locale == "ar"){
                         $model->slug_ar = $model->generateSlug($locale);
+                    } else {
+                        $model->slug = $model->generateSlug($locale);
                     }
-                    $model->slug = $model->generateSlug($locale);
                 });
         });
     }
