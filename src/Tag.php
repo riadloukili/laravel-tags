@@ -7,13 +7,13 @@ use Illuminate\Database\Eloquent\Collection as DbCollection;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\EloquentSortable\Sortable;
 use Spatie\EloquentSortable\SortableTrait;
-use Spatie\Translatable\HasTranslations;
+// use Spatie\Translatable\HasTranslations;
 
 class Tag extends Model implements Sortable
 {
-    use SortableTrait, HasTranslations, HasSlug;
+    use SortableTrait, /*HasTranslations,*/ HasSlug;
 
-    public $translatable = ['name', 'slug'];
+    //public $translatable = ['name', 'slug'];
 
     public $guarded = [];
 
@@ -29,8 +29,9 @@ class Tag extends Model implements Sortable
     public function scopeContaining(Builder $query, string $name, $locale = null): Builder
     {
         $locale = $locale ?? app()->getLocale();
+        $locale = $locale == "ar" ? "_ar" : "";
 
-        return $query->whereRaw('lower('.$this->getQuery()->getGrammar()->wrap('name->'.$locale).') like ?', ['%'.mb_strtolower($name).'%']);
+        return $query->whereRaw('lower('.$this->getQuery()->getGrammar()->wrap('name'.$locale).') like ?', ['%'.mb_strtolower($name).'%']);
     }
 
     /**
@@ -42,6 +43,7 @@ class Tag extends Model implements Sortable
      */
     public static function findOrCreate($values, string $type = null, string $locale = null)
     {
+        
         $tags = collect($values)->map(function ($value) use ($type, $locale) {
             if ($value instanceof self) {
                 return $value;
@@ -62,8 +64,10 @@ class Tag extends Model implements Sortable
     {
         $locale = $locale ?? app()->getLocale();
 
+        $locale = $locale == "ar" ? "_ar" : "";
+        
         return static::query()
-            ->where("name->{$locale}", $name)
+            ->where("name{$locale}", $name)
             ->where('type', $type)
             ->first();
     }
@@ -71,21 +75,23 @@ class Tag extends Model implements Sortable
     public static function findFromStringOfAnyType(string $name, string $locale = null)
     {
         $locale = $locale ?? app()->getLocale();
+        $locale = $locale == "ar" ? "_ar" : "";
 
         return static::query()
-            ->where("name->{$locale}", $name)
+            ->where("name{$locale}", $name)
             ->first();
     }
 
     protected static function findOrCreateFromString(string $name, string $type = null, string $locale = null)
     {
         $locale = $locale ?? app()->getLocale();
+        $locale = $locale == "ar" ? "_ar" : "";
 
         $tag = static::findFromString($name, $type, $locale);
 
         if (! $tag) {
             $tag = static::create([
-                'name' => [$locale => $name],
+                'name'.$locale => $name,
                 'type' => $type,
             ]);
         }
@@ -95,9 +101,9 @@ class Tag extends Model implements Sortable
 
     public function setAttribute($key, $value)
     {
-        if ($key === 'name' && ! is_array($value)) {
-            return $this->setTranslation($key, app()->getLocale(), $value);
-        }
+//         if ($key === 'name' && ! is_array($value)) {
+//             return $this->setTranslation($key, app()->getLocale(), $value);
+//         }
 
         return parent::setAttribute($key, $value);
     }
