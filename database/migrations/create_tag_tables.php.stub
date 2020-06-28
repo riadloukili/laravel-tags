@@ -12,8 +12,8 @@ class CreateTagTables extends Migration
             $table->increments('id');
             $table->text('name');
             $table->text('slug');
-            $table->text('name_ar');
-            $table->text('slug_ar');
+            $table->text('name_ar')->nullable();
+            $table->text('slug_ar')->nullable();
             $table->string('type')->nullable();
             $table->integer('order_column')->nullable();
             $table->timestamps();
